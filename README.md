@@ -1,6 +1,8 @@
 # DeathDPI
 
 DeathDPI is an advanced DPI (Deep Packet Inspection) bypass application for Windows 10 and 11. Inspired by GoodbyeDPI, it is written from scratch in the D programming language and offers more features.
+---
+This project is still under development
 
 ## Features
 
