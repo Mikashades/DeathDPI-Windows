@@ -57,7 +57,7 @@ dub --version
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/deathdpi.git
+git clone https://github.com/Mikashades/DeathDPI-Windows.git
 cd deathdpi
 ```
 
@@ -82,7 +82,7 @@ bin\deathdpi.exe
 
 ### Binary Installation
 
-1. Download the latest release from the [Releases](https://github.com/yourusername/deathdpi/releases) page
+1. Download the latest release from the [Releases](https://github.com/Mikashades/deathdpi/releases) page (it's not added)
 2. Extract the archive
 3. Run the `deathdpi.exe` file as an administrator
 
@@ -179,7 +179,7 @@ Log files are located by default at `deathdpi.log`. You can adjust log levels in
 ```json
 {
     "auto_update": true,
-    "update_url": "https://api.github.com/repos/yourusername/deathdpi/releases/latest"
+    "update_url": "https://api.github.com/repos/Mikashades/DeathDPI/releases/latest" //not added
 }
 ```
 
