@@ -103,11 +103,9 @@ This application requires administrator privileges as it manipulates network tra
 
 ## Contact
 
-- Project: [https://github.com/yourusername/deathdpi](https://github.com/yourusername/deathdpi)
-- Issues: [https://github.com/yourusername/deathdpi/issues](https://github.com/yourusername/deathdpi/issues)
+- Project: [https://github.com/Mikashades/DeathDPI-Windows](https://github.com/Mikashades/DeathDPI-Windows)
+- Issues: [https://github.com/Mikashades/DeathDPI-Windows/issues](https://github.com/Mikashades/DeathDPI-Windows/issues)
 
 ## Acknowledgments
 
 - Thanks to the [WinDivert](https://www.reqrypt.org/windivert.html) team
-- Thanks to the [GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI) team
-- Thanks to all contributors
