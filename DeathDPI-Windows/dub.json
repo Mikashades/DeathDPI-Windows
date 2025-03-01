@@ -1,0 +1,20 @@
+{
+    "name": "deathdpi",
+    "description": "Windows için DPI bypass uygulaması",
+    "authors": ["DeathDPI"],
+    "copyright": "Copyright © 2024",
+    "license": "MIT",
+    "targetType": "executable",
+    "sourcePaths": ["src"],
+    "importPaths": ["src"],
+    "mainSourceFile": "src/app.d",
+    "libs": ["WinDivert"],
+    "lflags": ["/LIBPATH:$PACKAGE_DIR/WinDivert/x64"],
+    "configurations": [
+        {
+            "name": "windows",
+            "platforms": ["windows"],
+            "targetPath": "bin"
+        }
+    ]
+} 
