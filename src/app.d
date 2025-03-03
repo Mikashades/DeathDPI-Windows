@@ -14,19 +14,14 @@ import core.sys.windows.windows;
 import windivert;
 import config;
 
-// Global değişkenler
 shared bool running = true;
 
-// DPI bypass yöntemleri için yapılandırma
 struct Config {
-    // Temel özellikler
     bool fragment_http = true;
     bool fragment_https = true;
     bool modify_ttl = true;
     int min_ttl = 3;
     bool random_http_header = true;
-
-    // Gelişmiş özellikler
     bool fragment_tcp = true;
     uint fragment_size = 2;
     bool reverse_tcp = true;
@@ -61,11 +56,9 @@ struct Config {
     bool gui_support = false;
 }
 
-// HTTP başlık manipülasyonu için sabitler
 enum string[] HTTP_METHODS = ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "CONNECT"];
 enum string[] HTTP_VERSIONS = ["HTTP/1.1", "HTTP/1.0"];
 
-// TCP paket parçalama fonksiyonu
 void fragmentTcpPacket(ubyte[] packet, size_t fragment_size, ref WINDIVERT_IPHDR* ip_header, ref WINDIVERT_TCPHDR* tcp_header) {
     if (packet.length <= fragment_size) return;
 
@@ -73,21 +66,16 @@ void fragmentTcpPacket(ubyte[] packet, size_t fragment_size, ref WINDIVERT_IPHDR
     size_t data_length = packet.length - data_offset;
 
     if (data_length > fragment_size) {
-        // Paketi parçala
         packet.length = data_offset + fragment_size;
     }
 }
 
-// HTTP başlığı manipülasyonu
 void modifyHttpHeader(ubyte[] packet, size_t offset) {
-    // Rastgele HTTP metodu ve versiyon seç
     string random_method = HTTP_METHODS[uniform(0, $)];
     string random_version = HTTP_VERSIONS[uniform(0, $)];
     
-    // Rastgele başlık ekle
     string random_header = format("X-Random: %d\r\n", uniform(0, int.max));
-    
-    // Mevcut veriyi kaydır ve yeni başlığı ekle
+
     if (offset + random_header.length < packet.length) {
         memmove(packet.ptr + offset + random_header.length, 
                 packet.ptr + offset, 
@@ -98,7 +86,6 @@ void modifyHttpHeader(ubyte[] packet, size_t offset) {
     }
 }
 
-// TTL değeri optimizasyonu
 ubyte calculateOptimalTTL(shared Config* config) {
     if (config.auto_ttl) {
         return cast(ubyte)uniform(config.auto_ttl_min, config.auto_ttl_max + 1);
@@ -106,7 +93,6 @@ ubyte calculateOptimalTTL(shared Config* config) {
     return cast(ubyte)config.min_ttl;
 }
 
-// Paket işleme fonksiyonu
 void processPacket(HANDLE handle, shared Config* config) {
     enum MAXBUF = 0xFFFF;
     auto packet = new ubyte[MAXBUF];
@@ -122,31 +108,25 @@ void processPacket(HANDLE handle, shared Config* config) {
         auto tcp_header = cast(WINDIVERT_TCPHDR*)(packet.ptr + (ip_header.HdrLength * 4));
         bool is_http = false;
 
-        // HTTP/HTTPS port kontrolü
         if (ntohs(tcp_header.DstPort) == 80 || ntohs(tcp_header.DstPort) == 443) {
             is_http = true;
 
-            // TTL değerini modifiye et
             if (config.modify_ttl) {
                 ip_header.TTL = calculateOptimalTTL(config);
             }
 
-            // TCP başlığını modifiye et
             if (config.random_http_header) {
                 tcp_header.Window = cast(UINT16)(uniform(0, 65535));
             }
 
-            // TCP sıra numarasını değiştir
             if (config.wrong_seq) {
                 tcp_header.SeqNum += uniform(1, 1000);
             }
 
-            // Yanlış checksum ekle
             if (config.wrong_chksum) {
                 tcp_header.Checksum = cast(UINT16)(uniform(0, 65535));
             }
 
-            // HTTP başlığını modifiye et
             if (config.wrong_http && ntohs(tcp_header.DstPort) == 80) {
                 size_t data_offset = (ip_header.HdrLength * 4) + (tcp_header.HdrLength * 4);
                 modifyHttpHeader(packet[0..packet_len], data_offset);
@@ -175,7 +155,6 @@ void processPacket(HANDLE handle, shared Config* config) {
     }
 }
 
-// IPv4 adresini parse et
 uint parseIPv4(string ip) {
     auto parts = ip.split(".");
     if (parts.length != 4) return 0;
@@ -191,26 +170,21 @@ void main(string[] args) {
     SetConsoleOutputCP(65001);
     writeln("Starting DeathDPI...");
 
-    // Yapılandırma dosyası yolu
     string configFile = "config.json";
-    
-    // Komut satırı parametrelerini kontrol et
+
     if (args.length > 1) {
         configFile = args[1];
     }
 
-    // Yapılandırma dosyasını yükle veya oluştur
     if (!exists(configFile)) {
         writefln("Configuration file not found: %s", configFile);
         writeln("Creating default configuration file...");
         Config.createDefault(configFile);
     }
 
-    // Yapılandırmayı yükle
     auto config = cast(shared)new Config();
     *config = Config.fromJson(configFile);
 
-    // WinDivert filtresini oluştur
     string filter = "tcp";
     if (config.blacklist) {
         filter ~= " and (";
@@ -228,10 +202,8 @@ void main(string[] args) {
         return;
     }
 
-    // Paket işleme thread'ini başlat
     auto tid = spawn(&processPacket, handle, config);
 
-    // Aktif özellikleri göster
     writeln("DPI bypass active. The following features are enabled:");
     writefln("- HTTP/HTTPS packet fragmentation (fragment_size: %d)", config.fragment_size);
     writeln("- TCP packet manipulation");
@@ -247,7 +219,6 @@ void main(string[] args) {
     
     readln();
 
-    // Uygulamayı kapat
     atomicStore(running, false);
     Thread.sleep(dur!"msecs"(100));
     WinDivertClose(handle);
